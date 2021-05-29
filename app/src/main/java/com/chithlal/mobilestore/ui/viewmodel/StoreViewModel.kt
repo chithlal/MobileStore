@@ -1,5 +1,6 @@
 package com.chithlal.mobilestore.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,6 +35,7 @@ class StoreViewModel @Inject constructor(private val storeRepo: StoreRepository)
                 }
             }catch (e : Exception){
                 storeErrorLiveData.postValue("Something Went wrong")
+                Log.d("HTTP:ERROR", "getStoreData: ${e.localizedMessage}")
             }
 
         }

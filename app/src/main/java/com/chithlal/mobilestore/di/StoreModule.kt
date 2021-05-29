@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Cache
+import okhttp3.CacheControl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -35,11 +36,14 @@ class StoreModule {
             .addInterceptor { chain ->
                 var request = chain.request()
                 request = if (networkUtil.isNetworkAvailable())
-                    request.newBuilder().header("Cache-Control", "public, max-age=" + 5).build()
-                else request.newBuilder().header(
-                    "Cache-Control",
-                    "public, only-if-cached, max-stale=" + Constants.CACHE_STALE
-                ).build()
+                    request.newBuilder()
+
+                        .cacheControl(CacheControl.FORCE_NETWORK)
+                        .build()
+                else request.newBuilder()
+
+                    .cacheControl(CacheControl.FORCE_CACHE)
+                    .build()
 
                 chain.proceed(request)
             }
