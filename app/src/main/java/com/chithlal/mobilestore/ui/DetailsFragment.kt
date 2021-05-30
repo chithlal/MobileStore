@@ -1,5 +1,6 @@
 package com.chithlal.mobilestore.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -15,6 +16,10 @@ import com.chithlal.mobilestore.model.Exclusion
 import com.chithlal.mobilestore.model.Feature
 import com.chithlal.mobilestore.model.Features
 import com.chithlal.mobilestore.model.Option
+import com.chithlal.mobilestore.ui.activity.FinalActivity
+import com.chithlal.mobilestore.ui.activity.PARAM_SELECTED_FEATURE
+import com.chithlal.mobilestore.ui.activity.PARAM_SELECTED_PHONE
+import com.chithlal.mobilestore.ui.activity.PARAM_SELECTED_STORAGE
 import com.chithlal.mobilestore.ui.adapter.FeatureAdapter
 import com.chithlal.mobilestore.ui.adapter.StorageOptionAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -52,6 +57,9 @@ class DetailsFragment : BottomSheetDialogFragment() {
     private var phoneId: String? = null
     private var selectedStorageId: String? = null
     private var selectedFeatureId : String? = null
+
+    private var selectedStorageList: ArrayList<Option>?=null
+    private var selectedFeatureList: ArrayList<Option>?=null
 
 
     private lateinit var mBinding: FragmentDetailsBinding
@@ -95,7 +103,11 @@ class DetailsFragment : BottomSheetDialogFragment() {
         mBinding.btContinue.setOnClickListener{
 
             if (isValidStorage && isValidFeatures){
-
+               val intent = Intent(requireContext(),FinalActivity::class.java)
+                intent.putExtra(PARAM_SELECTED_PHONE,selectedOption)
+                intent.putExtra(PARAM_SELECTED_STORAGE,selectedStorageList)
+                intent.putExtra(PARAM_SELECTED_FEATURE,selectedFeatureList)
+                requireContext().startActivity(intent)
             }
             else{
                 Toast.makeText(requireContext(), "Selected Options are invalid!", Toast.LENGTH_SHORT).show()
@@ -167,6 +179,7 @@ class DetailsFragment : BottomSheetDialogFragment() {
 
         featureAdapter = FeatureAdapter(requireContext(),others,object: FeatureAdapter.FeatureClickListener{
             override fun onClick(optionList: ArrayList<Option>) {
+                selectedFeatureList = optionList
                 isValidFeatures = isValidOptionsSelected(optionList) // check for valid feature combinations
             }
 
@@ -183,6 +196,7 @@ class DetailsFragment : BottomSheetDialogFragment() {
     private fun setStorageAdapter(storages: List<Option>) {
         storageAdapter = StorageOptionAdapter(requireContext(),storages,object: StorageOptionAdapter.StorageClickListener{
             override fun onClick(option: Option) {
+                selectedStorageList = arrayListOf(option)
 
                 if(isAvailablePair(phoneId!!,option.id)){ // Once storage is selected check if the combination is valid
                     isValidStorage = true

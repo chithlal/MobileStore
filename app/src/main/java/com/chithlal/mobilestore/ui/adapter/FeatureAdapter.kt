@@ -10,7 +10,7 @@ import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.AdapterOptionLayoutBinding
 import com.chithlal.mobilestore.model.Option
 
-class FeatureAdapter (val context: Context, val featureList: List<Option>,val listener: FeatureClickListener):
+class FeatureAdapter (val context: Context, val featureList: List<Option>,val listener: FeatureClickListener?):
     RecyclerView.Adapter<FeatureAdapter.ViewHolder>() {
 
     private val selectedFeatureIdList = ArrayList<String>()
@@ -49,6 +49,8 @@ class FeatureAdapter (val context: Context, val featureList: List<Option>,val li
         holder.name.text = feature.name
 
         holder.rootView.setOnClickListener{
+            if (listener == null) return@setOnClickListener
+
             if (selectedFeatureIdList.contains(feature.id)) {
                 selectedFeatureIdList.remove(feature.id)
                 selectedFeatureList.remove(feature)

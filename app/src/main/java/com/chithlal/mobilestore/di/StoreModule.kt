@@ -3,6 +3,7 @@ package com.chithlal.mobilestore.di
 import android.content.Context
 import com.chithlal.mobilestore.network.StoreApiInterface
 import com.chithlal.mobilestore.utils.Constants
+import com.chithlal.mobilestore.utils.NetworkCacheUtil
 import com.chithlal.mobilestore.utils.NetworkUtil
 import dagger.Module
 import dagger.Provides
@@ -37,12 +38,12 @@ class StoreModule {
                 var request = chain.request()
                 request = if (networkUtil.isNetworkAvailable())
                     request.newBuilder()
-
-                        .cacheControl(CacheControl.FORCE_NETWORK)
+                        .removeHeader("Pragma")
+                        .header("Cache-Control", "public, max-age=" + 500)
                         .build()
                 else request.newBuilder()
-
-                    .cacheControl(CacheControl.FORCE_CACHE)
+                    .removeHeader("Pragma")
+                    .header("Cache-Control", "public, only-if-cached, max-stale=" + 60 * 60 * 24 * 7)
                     .build()
 
                 chain.proceed(request)
@@ -65,4 +66,7 @@ class StoreModule {
 
     @Provides
     fun getNetworkUtil(@ApplicationContext context: Context) = NetworkUtil(context)
+
+    @Provides
+    fun getNetworkCacheUtil(@ApplicationContext context: Context) = NetworkCacheUtil(context)
 }

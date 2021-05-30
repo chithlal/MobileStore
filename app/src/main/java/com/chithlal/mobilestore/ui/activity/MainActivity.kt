@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        storeViewModel.getStoreData()
+        storeViewModel.getStoreData(this)
     }
 
     //observe live data for changes

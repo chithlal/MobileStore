@@ -4,7 +4,7 @@
     <dimen name="card_image_width">120dp</dimen>
     <dimen name="card_image_height">120dp</dimen>
     <dimen name="text_size_card">16sp</dimen>
-    <dimen name="margin_card_item">5dp</dimen>
+    <dimen name="margin_card_item">8dp</dimen>
     <dimen name="padding_10dp">10dp</dimen>
     <dimen name="height_image">300dp</dimen>
     <dimen name="button_height">70dp</dimen>

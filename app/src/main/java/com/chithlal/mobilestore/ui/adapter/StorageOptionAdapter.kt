@@ -10,7 +10,7 @@ import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.AdapterOptionLayoutBinding
 import com.chithlal.mobilestore.model.Option
 
-class StorageOptionAdapter(val context: Context, val storageList: List<Option>,val listener: StorageClickListener):
+class StorageOptionAdapter(val context: Context, val storageList: List<Option>,val listener: StorageClickListener?):
     RecyclerView.Adapter<StorageOptionAdapter.ViewHolder>() {
 
     private var selectedStorageId = "nill"
@@ -47,6 +47,7 @@ class StorageOptionAdapter(val context: Context, val storageList: List<Option>,v
         holder.name.text = storage.name
 
         holder.rootView.setOnClickListener{
+            if (listener == null) return@setOnClickListener
             if (selectedStorageId == storage.id )
                 selectedStorageId = "nill"
             else
