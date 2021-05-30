@@ -59,5 +59,6 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_height"
         android:text="@string/text_continue"
+        android:id="@+id/btContinue"
         />
 </LinearLayout>

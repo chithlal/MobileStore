@@ -5,11 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:gravity="center"
+    android:layout_margin="@dimen/margin_10dp"
+    android:background="@drawable/background_unselected"
     android:id="@+id/llOptions">
     <ImageView
         android:layout_width="@dimen/height_option_image"
         android:layout_height="@dimen/height_option_image"
         android:id="@+id/imgOption"
+        android:padding="@dimen/image_padding_3dp"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -17,6 +20,7 @@
         android:textSize="@dimen/text_size_card"
         android:layout_marginHorizontal="@dimen/margin_10dp"
         tools:text="256GB"
+        android:id="@+id/tvName"
         />
 
 </LinearLayout>

@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.chithlal.mobilestore.databinding.ActivityMainBinding
-import com.chithlal.mobilestore.model.Exclusion
 import com.chithlal.mobilestore.model.Features
 import com.chithlal.mobilestore.model.Option
+import com.chithlal.mobilestore.ui.DetailsFragment
 import com.chithlal.mobilestore.ui.adapter.MobileItemAdapter
 import com.chithlal.mobilestore.ui.viewmodel.StoreViewModel
 import com.chithlal.mobilestore.utils.NetworkUtil
@@ -19,15 +19,11 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    lateinit var rowArray: Array<Int>
-    lateinit var columnArray: Array<Int>
-    lateinit var graph: Array<IntArray>
-    lateinit var phones: List<Option>
-    lateinit var storages: List<Option>
-    lateinit var others: List<Option>
-    lateinit var exclusions: List<List<Exclusion>>
 
-    val idMap = HashMap<String, Int>()
+    lateinit var phones: List<Option>
+
+    private var features: Features? = null
+
 
     lateinit var mobileAdapter: MobileItemAdapter
 
@@ -52,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupObserver() {
         storeViewModel.storeLiveData.observe(this, Observer {
             Log.d("TAG", "setupObserver: ${it.features[0].name}")
-            prepareGraph(it)
+            preparePhoneList(it)
         })
 
         storeViewModel.storeErrorLiveData.observe(this, Observer {
@@ -60,64 +56,30 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun prepareGraph(features: Features) {
+    private fun preparePhoneList(features: Features) {
 
+        this.features = features
         // create separate list of features
         features.features.forEach {
             when (it.name) {
                 "Mobile Phone" -> {
                     phones = it.options
                 }
-                "Storage Options" -> {
-                    storages = it.options
-                }
-                "Other features" -> {
-                    others = it.options
-                }
+
             }
         }
         setAdapter(phones)
-        exclusions = features.exclusions
 
-        //create map of option id vs index to create graph vertex
-        var index = 0 // graph vertex
-        phones.forEach {
-            idMap[it.id] = index
-            index++
-        }
-        storages.forEach {
-            idMap[it.id] = index
-            index++
-        }
-        others.forEach {
-            idMap[it.id] = index
-            index++
-        }
-
-        val vertexCount = idMap.size
-        rowArray = Array(vertexCount) { _ -> 1 }
-        columnArray = Array(vertexCount) { _ -> 1 }
-        graph = Array(vertexCount){IntArray(vertexCount){ 1} }
-
-        exclusions.forEach {
-
-            val vertexOne = it[0].options_id
-            val vertexTwo = it[1].options_id
-            graph[idMap[vertexOne]!!][idMap[vertexTwo]!!] = 0
-
-        }
-
-        for (row in graph) {
-            Log.d("graph", row.contentToString())
-
-        }
 
     }
 
     private fun setAdapter(phones: List<Option>) {
         mobileAdapter = MobileItemAdapter(this@MainActivity,phones,object : MobileItemAdapter.MobileClickListener{
             override fun onClick(option: Option) {
-
+                if (features != null && option != null) {
+                    val detailsBottomSheet = DetailsFragment.newInstance(option, features!!)
+                    detailsBottomSheet.show(supportFragmentManager,"")
+                }
             }
 
         })
