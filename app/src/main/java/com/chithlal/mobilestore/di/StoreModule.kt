@@ -28,7 +28,6 @@ class StoreModule {
     @Provides
     fun provideOkHttp(@ApplicationContext context: Context, networkUtil: NetworkUtil) = run {
         //cache the response for offline usage
-        val cache = Cache(context.cacheDir, Constants.CACHE_SIZE)
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
         OkHttpClient.Builder()
