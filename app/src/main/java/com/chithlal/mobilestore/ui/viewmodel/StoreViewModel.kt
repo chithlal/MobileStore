@@ -20,6 +20,7 @@ class StoreViewModel @Inject constructor(private val storeRepo: StoreRepository)
     //network util to check internet access
     @Inject
     lateinit var networkUtil: NetworkUtil
+
     //Network cache util to manage cache
     @Inject
     lateinit var networkCacheUtil: NetworkCacheUtil
@@ -31,7 +32,7 @@ class StoreViewModel @Inject constructor(private val storeRepo: StoreRepository)
     val storeErrorLiveData = MutableLiveData<String>()
 
     //function calling store api to get the features
-    fun getStoreData(activity: Activity){
+    fun getStoreData(activity: Activity) {
         // if network is available fetch from server
         if (networkUtil.isNetworkAvailable()) {
             viewModelScope.launch {
@@ -40,7 +41,10 @@ class StoreViewModel @Inject constructor(private val storeRepo: StoreRepository)
                     storeRepo.getFeatures().let {
                         if (it.isSuccessful) {
                             storeLiveData.postValue(it.body())
-                            networkCacheUtil.writeCacheFile(activity,it.body()!!) // write latest data to cache
+                            networkCacheUtil.writeCacheFile(
+                                activity,
+                                it.body()!!
+                            ) // write latest data to cache
                         } else {
                             storeErrorLiveData.postValue("Something Went wrong")
                         }
@@ -51,14 +55,14 @@ class StoreViewModel @Inject constructor(private val storeRepo: StoreRepository)
                 }
 
             }
-        }
-        else{ // if network not available fetch from cache
-           val features = networkCacheUtil.readCacheFile(activity)
-            if (features != null){
+        } else { // if network not available fetch from cache
+
+            val features = networkCacheUtil.readCacheFile(activity)
+            if (features != null) {
                 storeLiveData.postValue(features!!)
-            }
-            else{
-                storeErrorLiveData.postValue("Something Went wrong")
+                storeErrorLiveData.postValue("Network unavailable showing last synced data! ")
+            } else {
+                storeErrorLiveData.postValue("No Internet access!")
             }
         }
 

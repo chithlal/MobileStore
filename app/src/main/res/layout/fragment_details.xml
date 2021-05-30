@@ -10,6 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginHorizontal="@dimen/default_margin"
         android:padding="@dimen/padding_10dp">
         <ImageView
             android:layout_width="@dimen/card_image_width"
@@ -27,14 +29,21 @@
             android:layout_marginVertical="@dimen/margin_card_item"
             />
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/line_height"
+        android:background="@color/line_bg"
+        android:layout_marginVertical="@dimen/margin_10dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/default_margin"
         android:orientation="vertical">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_card"
+            android:textColor="@color/text_heading"
             android:text="@string/string_storage"/>
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
@@ -42,10 +51,12 @@
             android:id="@+id/rv_storage"
             android:layout_marginVertical="@dimen/margin_card_item"
             />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_card"
+            android:textColor="@color/text_heading"
             android:layout_marginVertical="@dimen/margin_card_item"
             android:text="@string/string_other_feature"/>
         <androidx.recyclerview.widget.RecyclerView
@@ -55,10 +66,11 @@
             android:layout_marginVertical="@dimen/margin_card_item"
             />
     </LinearLayout>
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_height"
         android:text="@string/text_continue"
+        android:layout_marginHorizontal="@dimen/default_margin"
         android:id="@+id/btContinue"
         />
 </LinearLayout>

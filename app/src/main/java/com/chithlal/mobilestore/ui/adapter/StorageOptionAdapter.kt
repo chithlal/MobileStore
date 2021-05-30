@@ -10,12 +10,17 @@ import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.AdapterOptionLayoutBinding
 import com.chithlal.mobilestore.model.Option
 
-class StorageOptionAdapter(val context: Context, val storageList: List<Option>,val listener: StorageClickListener?):
+class StorageOptionAdapter(
+    val context: Context,
+    val storageList: List<Option>,
+    val listener: StorageClickListener?
+) :
     RecyclerView.Adapter<StorageOptionAdapter.ViewHolder>() {
 
+    //to keep track selected item
     private var selectedStorageId = "nill"
 
-    class ViewHolder(binding: AdapterOptionLayoutBinding):RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(binding: AdapterOptionLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
         val image = binding.imgOption
         val name = binding.tvName
@@ -24,7 +29,8 @@ class StorageOptionAdapter(val context: Context, val storageList: List<Option>,v
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_option_layout,parent,false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.adapter_option_layout, parent, false)
         val binding = AdapterOptionLayoutBinding.bind(view)
         return ViewHolder(binding)
     }
@@ -32,11 +38,13 @@ class StorageOptionAdapter(val context: Context, val storageList: List<Option>,v
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val storage = storageList[position]
 
-        if(selectedStorageId == storage.id  ){
-            holder.rootView.background = ContextCompat.getDrawable(context,R.drawable.background_selected)
-        }
-        else{
-            holder.rootView.background = ContextCompat.getDrawable(context,R.drawable.background_unselected)
+        if (selectedStorageId == storage.id) {
+            //already selected item
+            holder.rootView.background =
+                ContextCompat.getDrawable(context, R.drawable.background_selected)
+        } else {
+            holder.rootView.background =
+                ContextCompat.getDrawable(context, R.drawable.background_unselected)
         }
 
         storage.icon?.let {
@@ -46,12 +54,12 @@ class StorageOptionAdapter(val context: Context, val storageList: List<Option>,v
         }
         holder.name.text = storage.name
 
-        holder.rootView.setOnClickListener{
+        holder.rootView.setOnClickListener {
             if (listener == null) return@setOnClickListener
-            if (selectedStorageId == storage.id )
-                selectedStorageId = "nill"
+            selectedStorageId = if (selectedStorageId == storage.id)
+                "nill"
             else
-            selectedStorageId = storage.id
+                storage.id
 
             listener.onClick(storage)
             notifyDataSetChanged()
@@ -62,7 +70,7 @@ class StorageOptionAdapter(val context: Context, val storageList: List<Option>,v
         return storageList.size
     }
 
-    interface StorageClickListener{
+    interface StorageClickListener {
         fun onClick(option: Option)
     }
-    }
+}

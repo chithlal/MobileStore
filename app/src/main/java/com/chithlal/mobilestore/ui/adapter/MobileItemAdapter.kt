@@ -2,7 +2,6 @@ package com.chithlal.mobilestore.ui.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -10,9 +9,13 @@ import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.AdapterMobileLayoutBinding
 import com.chithlal.mobilestore.model.Option
 
-class MobileItemAdapter(val context: Context,var mobileList: List<Option>,val listener: MobileClickListener):
+class MobileItemAdapter(
+    val context: Context,
+    var mobileList: List<Option>,
+    val listener: MobileClickListener
+) :
     RecyclerView.Adapter<MobileItemAdapter.ViewHolder>() {
-    class ViewHolder(binding: AdapterMobileLayoutBinding): RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(binding: AdapterMobileLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
         val name = binding.tvPhoneName
         val icon = binding.imgMobilePhone
@@ -20,7 +23,8 @@ class MobileItemAdapter(val context: Context,var mobileList: List<Option>,val li
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_mobile_layout,parent,false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.adapter_mobile_layout, parent, false)
         val adapterMobileLayoutBinding = AdapterMobileLayoutBinding.bind(view)
         return ViewHolder(adapterMobileLayoutBinding)
     }
@@ -36,22 +40,23 @@ class MobileItemAdapter(val context: Context,var mobileList: List<Option>,val li
 
         holder.name.text = mobile.name
 
-        holder.itemView.setOnClickListener{
+        holder.itemView.setOnClickListener {
             listener.onClick(mobile)
         }
 
 
     }
-    fun updatePhones(data: List<Option>){
+
+    fun updatePhones(data: List<Option>) {
         mobileList = data
         notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
-       return mobileList.size
+        return mobileList.size
     }
 
-    interface MobileClickListener{
+    interface MobileClickListener {
         fun onClick(option: Option)
     }
 }

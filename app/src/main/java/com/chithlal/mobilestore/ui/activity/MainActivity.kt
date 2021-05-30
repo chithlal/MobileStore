@@ -1,7 +1,6 @@
 package com.chithlal.mobilestore.ui.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,8 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.chithlal.mobilestore.databinding.ActivityMainBinding
 import com.chithlal.mobilestore.model.Features
 import com.chithlal.mobilestore.model.Option
-import com.chithlal.mobilestore.ui.DetailsFragment
 import com.chithlal.mobilestore.ui.adapter.MobileItemAdapter
+import com.chithlal.mobilestore.ui.fragment.DetailsFragment
 import com.chithlal.mobilestore.ui.viewmodel.StoreViewModel
 import com.chithlal.mobilestore.utils.NetworkUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +27,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var mobileAdapter: MobileItemAdapter
 
     private lateinit var mainBinding: ActivityMainBinding
+
     @Inject()
     lateinit var networkUtil: NetworkUtil
     val storeViewModel: StoreViewModel by viewModels()
@@ -44,22 +44,28 @@ class MainActivity : AppCompatActivity() {
         storeViewModel.getStoreData(this)
     }
 
-    //observe live data for changes
+    /* observe live data for changes*/
     private fun setupObserver() {
         storeViewModel.storeLiveData.observe(this, Observer {
-            Log.d("TAG", "setupObserver: ${it.features[0].name}")
+            mainBinding.swipeRefreshMainView.isRefreshing = false
             preparePhoneList(it)
         })
 
         storeViewModel.storeErrorLiveData.observe(this, Observer {
-            Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            mainBinding.swipeRefreshMainView.isRefreshing = false
         })
+
+        /*swipe refresh to reload list*/
+        mainBinding.swipeRefreshMainView.setOnRefreshListener {
+            storeViewModel.getStoreData(this)
+        }
     }
 
     private fun preparePhoneList(features: Features) {
 
         this.features = features
-        // create separate list of features
+        /*create separate list of features*/
         features.features.forEach {
             when (it.name) {
                 "Mobile Phone" -> {
@@ -73,16 +79,21 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    /*setup adapter with phone list*/
     private fun setAdapter(phones: List<Option>) {
-        mobileAdapter = MobileItemAdapter(this@MainActivity,phones,object : MobileItemAdapter.MobileClickListener{
-            override fun onClick(option: Option) {
-                if (features != null && option != null) {
-                    val detailsBottomSheet = DetailsFragment.newInstance(option, features!!)
-                    detailsBottomSheet.show(supportFragmentManager,"")
+        mobileAdapter = MobileItemAdapter(
+            this@MainActivity,
+            phones,
+            object : MobileItemAdapter.MobileClickListener {
+                override fun onClick(option: Option) {
+                    if (features != null && option != null) {
+                        val detailsBottomSheet = DetailsFragment.newInstance(option, features!!)
+                        detailsBottomSheet.show(supportFragmentManager, "")
+                    }
                 }
-            }
 
-        })
+            })
+
         mainBinding.rvMobiles.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = mobileAdapter

@@ -10,13 +10,18 @@ import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.AdapterOptionLayoutBinding
 import com.chithlal.mobilestore.model.Option
 
-class FeatureAdapter (val context: Context, val featureList: List<Option>,val listener: FeatureClickListener?):
+class FeatureAdapter(
+    val context: Context,
+    val featureList: List<Option>,
+    val listener: FeatureClickListener?
+) :
     RecyclerView.Adapter<FeatureAdapter.ViewHolder>() {
 
+    /*list stores user selection to persist multiple selection*/
     private val selectedFeatureIdList = ArrayList<String>()
     private val selectedFeatureList = ArrayList<Option>()
 
-    class ViewHolder(binding: AdapterOptionLayoutBinding): RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(binding: AdapterOptionLayoutBinding) : RecyclerView.ViewHolder(binding.root) {
 
         val image = binding.imgOption
         val name = binding.tvName
@@ -25,7 +30,8 @@ class FeatureAdapter (val context: Context, val featureList: List<Option>,val li
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_option_layout,parent,false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.adapter_option_layout, parent, false)
         val binding = AdapterOptionLayoutBinding.bind(view)
         return ViewHolder(binding)
     }
@@ -34,11 +40,15 @@ class FeatureAdapter (val context: Context, val featureList: List<Option>,val li
 
         val feature = featureList[position]
 
-        if(selectedFeatureIdList.contains(feature.id)){
-            holder.rootView.background = ContextCompat.getDrawable(context,R.drawable.background_selected)
-        }
-        else{
-            holder.rootView.background = ContextCompat.getDrawable(context,R.drawable.background_unselected)
+        if (selectedFeatureIdList.contains(feature.id)) {
+            //current item is already selected
+            holder.rootView.background =
+                ContextCompat.getDrawable(context, R.drawable.background_selected)
+
+        } else {
+            // current item is not in selection
+            holder.rootView.background =
+                ContextCompat.getDrawable(context, R.drawable.background_unselected)
         }
 
         feature.icon?.let {
@@ -48,14 +58,15 @@ class FeatureAdapter (val context: Context, val featureList: List<Option>,val li
         }
         holder.name.text = feature.name
 
-        holder.rootView.setOnClickListener{
+        holder.rootView.setOnClickListener {
             if (listener == null) return@setOnClickListener
 
             if (selectedFeatureIdList.contains(feature.id)) {
+                //remove selected item into list
                 selectedFeatureIdList.remove(feature.id)
                 selectedFeatureList.remove(feature)
-            }
-            else {
+            } else {
+                //add selected item to list
                 selectedFeatureIdList.add(feature.id)
                 selectedFeatureList.add(feature)
             }
@@ -68,7 +79,8 @@ class FeatureAdapter (val context: Context, val featureList: List<Option>,val li
     override fun getItemCount(): Int {
         return featureList.size
     }
-    interface FeatureClickListener{
+
+    interface FeatureClickListener {
         fun onClick(optionList: ArrayList<Option>)
     }
 }

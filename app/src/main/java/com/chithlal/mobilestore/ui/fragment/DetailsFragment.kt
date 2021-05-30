@@ -1,19 +1,16 @@
-package com.chithlal.mobilestore.ui
+package com.chithlal.mobilestore.ui.fragment
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.chithlal.mobilestore.R
 import com.chithlal.mobilestore.databinding.FragmentDetailsBinding
 import com.chithlal.mobilestore.model.Exclusion
-import com.chithlal.mobilestore.model.Feature
 import com.chithlal.mobilestore.model.Features
 import com.chithlal.mobilestore.model.Option
 import com.chithlal.mobilestore.ui.activity.FinalActivity
@@ -47,19 +44,20 @@ class DetailsFragment : BottomSheetDialogFragment() {
     private lateinit var storageAdapter: StorageOptionAdapter
 
     //adapter for features list
-    private lateinit var featureAdapter : FeatureAdapter
+    private lateinit var featureAdapter: FeatureAdapter
 
     //set to false is selected storage options are not valid, default is invalid
     private var isValidStorage = false
+
     //set to false is selected featurs options are not valid, default is invalid
     private var isValidFeatures = false
 
     private var phoneId: String? = null
     private var selectedStorageId: String? = null
-    private var selectedFeatureId : String? = null
 
-    private var selectedStorageList: ArrayList<Option>?=null
-    private var selectedFeatureList: ArrayList<Option>?=null
+    //to keep valid pairs of options
+    private var selectedStorageList: ArrayList<Option>? = null
+    private var selectedFeatureList: ArrayList<Option>? = null
 
 
     private lateinit var mBinding: FragmentDetailsBinding
@@ -93,27 +91,34 @@ class DetailsFragment : BottomSheetDialogFragment() {
     private fun setupView(selectedOption: Option) {
 
         phoneId = selectedOption.id
-        selectedOption.icon?.let{
+        //load image
+        selectedOption.icon?.let {
             Glide.with(requireActivity())
                 .load(it)
                 .into(mBinding.imgMobilePhone)
         }
         mBinding.tvPhoneName.text = selectedOption.name
 
-        mBinding.btContinue.setOnClickListener{
+        mBinding.btContinue.setOnClickListener {
 
-            if (isValidStorage && isValidFeatures){
-               val intent = Intent(requireContext(),FinalActivity::class.java)
-                intent.putExtra(PARAM_SELECTED_PHONE,selectedOption)
-                intent.putExtra(PARAM_SELECTED_STORAGE,selectedStorageList)
-                intent.putExtra(PARAM_SELECTED_FEATURE,selectedFeatureList)
+            if (isValidStorage && isValidFeatures) {
+                // user selected a valid options -> send to @FinalActivity
+                val intent = Intent(requireContext(), FinalActivity::class.java)
+                intent.putExtra(PARAM_SELECTED_PHONE, selectedOption)
+                intent.putExtra(PARAM_SELECTED_STORAGE, selectedStorageList)
+                intent.putExtra(PARAM_SELECTED_FEATURE, selectedFeatureList)
                 requireContext().startActivity(intent)
-            }
-            else{
-                Toast.makeText(requireContext(), "Selected Options are invalid!", Toast.LENGTH_SHORT).show()
+            } else {
+                //user selected invalid options
+                Toast.makeText(
+                    requireContext(),
+                    "Selected Options are invalid!",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
+
     /***
      * Prepare a graph representing features options as nodes and valid pairs as edges
      * if the options are connected then those pairs are valid combinations
@@ -135,7 +140,7 @@ class DetailsFragment : BottomSheetDialogFragment() {
             }
         }
         setStorageAdapter(storages)
-      //  setFeatureAdapter(others)
+        //  setFeatureAdapter(others)
         exclusions = features.exclusions
 
         //create map of option id vs index to create graph vertex
@@ -156,14 +161,16 @@ class DetailsFragment : BottomSheetDialogFragment() {
 
         val vertexCount = idMap.size // hashmap size will be the number of nodes in the graph
 
-        graph = Array(vertexCount){IntArray(vertexCount){ 1} } // create NxN matrix to represent graph and initialize to 1
+        graph =
+            Array(vertexCount) { IntArray(vertexCount) { 1 } } // create NxN matrix to represent graph and initialize to 1
 
         // find exclusion pairs and disconnect exclusions from the graph
         exclusions.forEach {
 
             val vertexOne = it[0].options_id
             val vertexTwo = it[1].options_id
-            graph[idMap[vertexOne]!!][idMap[vertexTwo]!!] = 0 // disconnect edges for exclusion pairs
+            graph[idMap[vertexOne]!!][idMap[vertexTwo]!!] =
+                0 // disconnect edges for exclusion pairs
             graph[idMap[vertexTwo]!!][idMap[vertexOne]!!] = 0
 
         }
@@ -177,14 +184,16 @@ class DetailsFragment : BottomSheetDialogFragment() {
 
     private fun setFeatureAdapter(others: List<Option>) {
 
-        featureAdapter = FeatureAdapter(requireContext(),others,object: FeatureAdapter.FeatureClickListener{
-            override fun onClick(optionList: ArrayList<Option>) {
-                selectedFeatureList = optionList
-                isValidFeatures = isValidOptionsSelected(optionList) // check for valid feature combinations
-            }
+        featureAdapter =
+            FeatureAdapter(requireContext(), others, object : FeatureAdapter.FeatureClickListener {
+                override fun onClick(optionList: ArrayList<Option>) {
+                    selectedFeatureList = optionList
+                    isValidFeatures =
+                        isValidOptionsSelected(optionList) // check for valid feature combinations
+                }
 
 
-        })
+            })
 
         mBinding.rvOther.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -194,51 +203,65 @@ class DetailsFragment : BottomSheetDialogFragment() {
     }
 
     private fun setStorageAdapter(storages: List<Option>) {
-        storageAdapter = StorageOptionAdapter(requireContext(),storages,object: StorageOptionAdapter.StorageClickListener{
-            override fun onClick(option: Option) {
-                selectedStorageList = arrayListOf(option)
 
-                if(isAvailablePair(phoneId!!,option.id)){ // Once storage is selected check if the combination is valid
-                    isValidStorage = true
-                    selectedStorageId = option.id
-                    setFeatureAdapter(others) // if valid storage show the feature adapter
-                    mBinding.rvOther.visibility = View.VISIBLE
-                }
-                else{ // if invalid pair hide fetures
-                    isValidStorage = true
-                    mBinding.rvOther.visibility = View.GONE
-                }
-            }
+        storageAdapter = StorageOptionAdapter(
+            requireContext(),
+            storages,
+            object : StorageOptionAdapter.StorageClickListener {
+                override fun onClick(option: Option) {
+                    selectedStorageList = arrayListOf(option)
 
-        })
+                    if (isAvailablePair(
+                            phoneId!!,
+                            option.id
+                        )
+                    ) { // Once storage is selected check if the combination is valid
+                        isValidStorage = true
+                        selectedStorageId = option.id
+                        setFeatureAdapter(others) // if valid storage show the feature adapter
+                        mBinding.rvOther.visibility = View.VISIBLE
+                    } else { // if invalid pair hide fetures
+                        isValidStorage = true
+                        mBinding.rvOther.visibility = View.GONE
+                    }
+                }
+
+            })
 
         mBinding.rvStorage.apply {
-            layoutManager = LinearLayoutManager(requireContext(),LinearLayoutManager.HORIZONTAL,false)
+            layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             adapter = storageAdapter
         }
 
     }
+
     /***
      * chek for valid pair in the graph ie: vertex are connected
      * return true if there is an edge between vertex
      * */
-    private fun isAvailablePair(idOne: String,idTwo: String): Boolean{
+    private fun isAvailablePair(idOne: String, idTwo: String): Boolean {
         return graph[idMap[idOne]!!][idMap[idTwo]!!] != 0
     }
 
     /***
-    * chek for valid feature selections return true if selections are valid
-    * */
-    private fun isValidOptionsSelected(optionList: ArrayList<Option>): Boolean{
+     * chek for valid feature selections return true if selections are valid
+     * */
+    private fun isValidOptionsSelected(optionList: ArrayList<Option>): Boolean {
+
         var isOptionsValid = true
         var idOne = phoneId // keep vertex of graph as phoneId
-        optionList.forEach{ // check if phone and other features are valid combination ( if vertex are connected in the graph
-            if (!isAvailablePair(idOne!!,it.id)) // check if vertex are connected
+        optionList.forEach { // check if phone and other features are valid combination ( if vertex are connected in the graph
+            if (!isAvailablePair(idOne!!, it.id)) // check if vertex are connected
                 isOptionsValid = false
         }
         idOne = selectedStorageId // keep first source vertex of graph as storage id
-        optionList.forEach{
-            if (!isAvailablePair(idOne!!,it.id)) // checking if storage and other features pair are valid
+        optionList.forEach {
+            if (!isAvailablePair(
+                    idOne!!,
+                    it.id
+                )
+            ) // checking if storage and other features pair are valid
                 isOptionsValid = false
         }
         return isOptionsValid
